@@ -31,8 +31,6 @@ jobs:
           test -f _site/audio/blend-map.wav
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
