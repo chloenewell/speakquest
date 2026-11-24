@@ -1,0 +1,40 @@
+name: Publish SpeakQuest
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: speakquest-pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Unpack playable SpeakQuest site
+        run: |
+          test -f SpeakQuest-Ready-for-GitHub.zip || { echo 'Upload SpeakQuest-Ready-for-GitHub.zip to the repository root first.'; exit 1; }
+          mkdir -p _site
+          unzip -q SpeakQuest-Ready-for-GitHub.zip 'docs/*' -d _extract
+          cp -R _extract/docs/. _site/
+          test -s _site/index.html
+          test -s _site/assets/index-CB8Xd6z3.js
+          test -s _site/assets/index-l24k5wMn.css
+          test -f _site/audio/blend-map.wav
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy site
+        id: deployment
+        uses: actions/deploy-pages@v4
